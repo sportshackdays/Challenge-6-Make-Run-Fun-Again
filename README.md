@@ -11,10 +11,17 @@ The files to be used for the simulator are the *cleaned.csv" files.
 
 ### change_date.py
 This file modifies the epoc time of the data file "dump_300857_2024_10_06T07_45_00_000000Z.csv.ori" to be closer to the other runners.
+
 300857 -> epoc 1728202247 -> Sunday, October 6, 2024 10:10:48 AM GMT+02:00 DST --> 1728201795 (Sunday, October 6, 2024 10:03:15 AM GMT+02:00)
+
+calculate the time difference to correct. 
+
 1728202247 - 1728201795 = 452
+
 301612 -> epoc 1728201784 -> Sunday, October 6, 2024 10:03:04 AM GMT+02:00 DST
+
 301725 -> epoc 1728201790 -> Sunday, October 6, 2024 10:03:10 AM GMT+02:00 DST
+
 301977 -> epoc 1728201780 -> Sunday, October 6, 2024 10:03:00 AM GMT+02:00 DST
 
 ### cleaner.py

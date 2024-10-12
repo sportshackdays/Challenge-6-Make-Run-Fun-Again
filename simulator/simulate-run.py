@@ -20,7 +20,8 @@ def delivery_report(err, msg):
     if err is not None:
         print(f"Message delivery failed: {err}")
     else:
-        print(f"Message delivered to {msg.topic()} [{msg.partition()}]")
+        #print(f"Message delivered to {msg.topic()} [{msg.partition()}]")
+        pass
 
 def read_and_send_messages(csv_file, topic):
     """ Read CSV and send messages to Kafka """
@@ -28,10 +29,11 @@ def read_and_send_messages(csv_file, topic):
     df = pd.read_csv(file_path)  # Read CSV file
     for _, row in df.iterrows():
         message = row.to_json()  # Convert row to JSON string
-        print(f"Sending message: {message}, Key: {csv_file[5:11]}")
+        #print(f"Sending message: {message}, Key: {csv_file[5:11]}")
         producer.produce(topic, key=csv_file[5:11], value=message, callback=delivery_report)  # Send message to Kafka
         producer.poll(0)  # Trigger the delivery report callback
-        time.sleep(0.1)  # Optional delay to control message flow
+        producer.flush()  # Ensure all messages are sent before exiting
+        time.sleep(0.08)  # Optional delay to control message flow
 
     producer.flush()  # Ensure all messages are sent before exiting
 
@@ -39,13 +41,13 @@ def send_messages_with_time_difference(csv_files, topic):
     """ Send messages from multiple CSVs in parallel with a start delay between each CSV file """
     with ThreadPoolExecutor() as executor:
         futures = []
-        futures.append(executor.submit(read_and_send_messages(csv_files[0], topic)))
+        futures.append(executor.submit(read_and_send_messages, csv_files[0], topic))
         time.sleep(4)
-        futures.append(executor.submit(read_and_send_messages(csv_files[1], topic)))
+        futures.append(executor.submit(read_and_send_messages, csv_files[1], topic))
         time.sleep(6)
-        futures.append(executor.submit(read_and_send_messages(csv_files[2], topic)))
+        futures.append(executor.submit(read_and_send_messages, csv_files[2], topic))
         time.sleep(5)
-        futures.append(executor.submit(read_and_send_messages(csv_files[3], topic)))
+        futures.append(executor.submit(read_and_send_messages, csv_files[3], topic))
 
         # Wait for all threads to complete
         for future in futures:
@@ -56,7 +58,7 @@ if __name__ == "__main__":
     csv_files = ["dump_301977_2024_10_06T07_45_00_000000Zcleaned.csv", 
                  "dump_301612_2024_10_06T07_45_00_000000Zcleaned.csv", 
                  "dump_301725_2024_10_06T07_45_00_000000Zcleaned.csv",
-                 "dump_300857_2024_10_06T07_45_00_000000Zcleaned.csv"]  # Update with actual file paths
+                 "dump_300857_2024_10_06T07_45_00_000000Zcleaned.csv"]
     kafka_topic = "Challenge6RunnerData"  # Kafka topic to send the messages to
 
     # Send messages with a time difference between starting each CSV file
